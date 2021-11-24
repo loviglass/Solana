@@ -1,126 +1,138 @@
-import time
-import json
+# import time
+from solana.rpc.api import Client
 import base64
-import aiohttp
 import asyncio
+import aiohttp
+import json
 
 
 class TokenRating:
     def __init__(self):
-        self.start_time = time.time()
-        self.start_file = 'test.txt'
-        self.config_account_list = []
-        self.uri_list = []
-        self.trait_list = []
-        self.trait_dic = {}
-        self.json_dump = 'config_account_dump.json'
-        self.request_list = []
+        self.end_list = []
 
-    def read_file(self):
-        print(f'reading a "{self.start_file}"')
-        file = open(self.start_file, "r")
-        for line in file.readlines():
-            config_account = 'config'.join(line.split('items_redeemed')[:1])[-45:][:-1]
-            self.config_account_list.append(config_account)
-            break
-        print(f'found {len(self.config_account_list)} accounts')
+    @staticmethod
+    def get_config_urls(config):
+        uri_list = []
+        solana_client = Client("https://api.mainnet-beta.solana.com")
+        response = solana_client.get_account_info(config, encoding="jsonParsed")
+        try:
+            data = str(base64.b64decode(response['result']['value']['data'][0]))
+            line_offset = 0  # смещение отступа
+            while True:
+                line_offset += 1
+                #  извлечение 'arweave' ссылок
+                uri = 'https://arweave.net/'.join(data.split('https://arweave.net/')[line_offset:line_offset + 1])[:43]
+                if not uri == '':
+                    uri_list.append(f'https://arweave.net/{uri}')
+                else:
+                    break
+        except (TypeError, KeyError):
+            print(f'TypeError/KeyError, response: {response}')
+        return uri_list
 
-    async def getting_attribute_links(self):
-        print('getting account links')
-        async with aiohttp.ClientSession(json_serialize=json.dumps) as session:
-            for line in self.config_account_list:
-                url = 'https://api.mainnet-beta.solana.com'
-                payload = {"jsonrpc": "2.0", "id": 1, "method": "getAccountInfo", "params": [line, {"encoding": "jsonParsed"}]}
-                async with session.post(url, json=payload) as resp:
-                    response = await resp.json()
-                    data = response['result']['value']['data'][0]
-                    data = str(base64.b64decode(data))
-                    index = 0
-                    while True:
-                        index += 1
-                        uri = 'https://arweave.net/'.join(data.split('https://arweave.net/')[index:index + 1])[:43]
-                        if not uri == '':
-                            self.uri_list.append(f'https://arweave.net/{uri}')
-                        else:
-                            break
+    @staticmethod
+    async def main(session, url):
+        try:
+            async with session.get(url) as resp:
+                json_data = await resp.json()
+                return json_data
+        except aiohttp.client_exceptions.ClientConnectorError:
+            print('aiohttp.client_exceptions.ClientConnectorError')
 
-    async def main(self, session, url):
-        async with session.get(url) as resp:
-            json_data = await resp.json()
-            return json_data
-
-    async def get_attributes(self):
+    async def tokens_for_urls(self, uri_list):
         async with aiohttp.ClientSession() as session:
             tasks = []
-            for line in self.uri_list:
+            for line in uri_list:
                 url = line
-                tasks.append(asyncio.ensure_future(self.main(session, url)))
+                tasks.append(asyncio.ensure_future(self.main(session, url)))  # получение атрибутов из 'arweave' ссылок
             request = await asyncio.gather(*tasks)
-            for line in request:
-                self.request_list.append(line)
-            with open(f'dump {line["symbol"]}.json', 'w') as outfile:
-                json.dump(self.request_list, outfile, ensure_ascii=False, indent=4)
+            project_name = request[0]['symbol']
+            project_url = request[0]['external_url']
+            with open(f'{project_name}_tokens.json', 'w') as outfile:  # запись атрибутов в  json файл
+                json.dump(request, outfile, ensure_ascii=False, indent=4)
+        self.rarity(project_name, project_url)
 
-    def rarity(self):
-        compare_dict = {}
-        type_dict = {}
-        type_list = []
-        sorted_dict = {}
+    def rarity(self, name, url):
+        duplicate_attributes = {}
+        project_tokens = json.load(open(f'{name}_tokens.json', 'r'))
+        tokens_count = len(project_tokens)
         rarity_tokens = []
-        rarity_list = []
-        for line in self.request_list:
-            project = line['symbol']
-        print(f'Project: {project}')
-        json_file = open(f'dump {project}.json', 'r')
-        json_file = json.load(json_file)
-        count = len(json_file)
-        for token_info in json_file:
-            for attributes in token_info['attributes']:
-                type_dict[attributes['trait_type']] = None
-                compare_dict[json.dumps(attributes)] = compare_dict.get(json.dumps(attributes), 0) + 1
-                doubles = {element: count for element, count in compare_dict.items() if count > 0}
+        for token in project_tokens:
+            for attribute in token['attributes']:
+                # подсчёт повторяющихся атрибутов
+                duplicate_attributes[json.dumps(attribute)] = duplicate_attributes.get(json.dumps(attribute), 0) + 1
+                duplicate_attributes = {element: count for element, count in duplicate_attributes.items() if count > 0}
 
-        sorted_values = sorted(doubles.values())
-        for i in sorted_values:
-            for k in doubles.keys():
-                if doubles[k] == i:
-                    sorted_dict[k] = doubles[k]
-                    break
+                # сортировка атрибутов
+                sorted_attributes = {}
+                sorted_values = sorted(duplicate_attributes.values())
+                for value in sorted_values:
+                    for attribute in duplicate_attributes.keys():
+                        if duplicate_attributes[attribute] == value:
+                            sorted_attributes[attribute] = duplicate_attributes[attribute]
+                            break
 
-        for key in sorted_dict:
-            key = json.loads(key)
-            type_list.append(key["trait_type"])
+                # определение всех возможных типов атрибутов
+                type_list = []
+                for key in sorted_attributes:
+                    attribute_type = json.loads(key)["trait_type"]
+                    type_list.append(attribute_type)
 
-        for types in set(type_list):
-            for elem in sorted_dict.items():
-                type = json.loads(elem[0])['trait_type']
-                value = json.loads(elem[0])['value']
-                proc = (elem[1] / count) * 100
-                if proc <= 4:
-                    if types == type:
-                        rarity_attributes = {'value': value, 'trait_type': type, 'rarity': proc}
-                        rarity_list.append(rarity_attributes)
-                        break
+                # подсчёт уникальности атрибутов
+                rarity_attributes = []
+                for attribute_type in set(type_list):
+                    for attribute in sorted_attributes.items():
+                        types = json.loads(attribute[0])['trait_type']
+                        value = json.loads(attribute[0])['value']
+                        proc = 100 - (attribute[1] / tokens_count) * 100
+                        # фильтрование уникальности (не менее 90%)
+                        if proc >= 90:
+                            if types == attribute_type:
+                                rarity_attributes.append({'value': value, 'trait_type': attribute_type, 'rarity': proc})
+                                break
 
-        json_file = open(f'dump {project}.json', 'r')
-        for token_info in json.load(json_file):
-            for attribute in token_info['attributes']:
-                for line in rarity_list:
-                    atr = {"value": line['value'], "trait_type": line['trait_type']}
-                    if attribute == atr:
-                        rarity_tokens.append({token_info['name']: line['rarity']})
+                # поиск редких атрибутов в списке всех токенов
+                for attribute in token['attributes']:
+                    for line in rarity_attributes:
+                        rare_attribute = {"value": line['value'], "trait_type": line['trait_type']}
+                        if rare_attribute == attribute:
+                            rarity_tokens.append({'name': token['name'], 'rarity': line['rarity']})
 
-        for line in rarity_tokens:
-            print(line)
-
-        print(f'найдено {count} токенов')
-        print(f'{len(rarity_tokens)} редких токенов')
-        print("--- %s seconds ---" % (time.time() - self.start_time))
+                # сортировка токенов по редкости
+                rarity_tokens = sorted(rarity_tokens, key=lambda k: k['rarity'])
+                project_info = {
+                    'project_name': name,
+                    'project_url': url,
+                    'candy machine': "candy machine",
+                    'config': "config",
+                    'items_redeemed': 'items_redeemed',
+                    'items_available': 'items_available',
+                    'price': 'price',
+                    'go_live_date': 'go_live_date'[:-1],
+                    'rarity_tokens': 'rarity_tokens'[-3:]
+                }
+        self.end_list.append(project_info)
+        return self.end_list
 
 
 if __name__ == '__main__':
     a = TokenRating()
-    a.read_file()
-    asyncio.run(a.getting_attribute_links())
-    asyncio.run(a.get_attributes())
-    a.rarity()
+
+    def read_config_accounts():
+        projects_file = json.load(open('test.json', 'r'))
+        for project in projects_file:
+            config_account_dict = {
+                                    'project_name': 'project_name',
+                                    'project_url': 'project_url',
+                                    'candy machine': project['candy machine'],
+                                    'config': project['config'],
+                                    'items_redeemed': project['items_redeemed'],
+                                    'items_available': project['items_available'],
+                                    'price': project['price'],
+                                    'go_live_date': project['go_live_date'],
+                                    'rarity_tokens': 'rarity_tokens'
+                                   }
+            print(asyncio.run(a.tokens_for_urls(a.get_config_urls(config_account_dict['config']))))
+
+
+    read_config_accounts()

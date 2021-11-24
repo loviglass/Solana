@@ -35,7 +35,7 @@ def rarity():
         for elem in sorted_dict.items():
             type = json.loads(elem[0])['trait_type']
             value = json.loads(elem[0])['value']
-            proc = (elem[1]/count)*100
+            proc = (elem[1] / count) * 100
             if proc <= 4:
                 if types == type:
                     rarity_attributes = {'value': value, 'trait_type': type, 'rarity': proc}
@@ -49,12 +49,10 @@ def rarity():
             for line in rarity_list:
                 atr = {"value": line['value'], "trait_type": line['trait_type']}
                 if attribute == atr:
-                   rarity_tokens.append({token_info['name']: line['rarity']})
+                    rarity_tokens.append({token_info['name']: line['rarity']})
 
     for line in rarity_tokens:
         print(line)
 
 
 rarity()
-
-

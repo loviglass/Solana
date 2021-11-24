@@ -1,0 +1,18 @@
+[
+    {
+        "candy machine": "EaE3cZCoDzyd5aWtkBmWpENaz8Qi5pMn8USotiKn62cP",
+        "config": "7HciiBXuP6wPRxb75oeH2HvC7hKkE8we87F2w8kPFBiF",
+        "items_redeemed": "0",
+        "price": "199000000",
+        "items_available": "250",
+        "go_live_date": "Some(\"Sat, 13 Nov 2021 13:00:00 +0000\")\n"
+    },
+    {
+        "candy machine": "9agtUq5EZ2JW9bDk9h8QJZaeYNfu4hAmTLHgF1Y9nmki",
+        "config": "3FdFeMRcvnr7ZG2rvgKoHG5s7HRzwLi91tcEZysY1GMK",
+        "items_redeemed": "0",
+        "price": "10000000000",
+        "items_available": "50",
+        "go_live_date": "Some(\"Thu, 20 Oct 2022 14:06:00 +0000\")\n"
+    }
+]
