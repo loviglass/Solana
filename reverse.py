@@ -71,7 +71,8 @@ for project in projects_file:
     duplicate_attributes = {}
     project_tokens = json.load(open(f'{config_account_dict["project_name"]}_tokens.json', 'r'))
     tokens_count = len(project_tokens)
-    rarity_tokens = []
+
+
     for token in project_tokens:
         for attribute in token['attributes']:
             # подсчёт повторяющихся атрибутов
@@ -101,7 +102,7 @@ for project in projects_file:
                     value = json.loads(attribute[0])['value']
                     proc = 100 - (attribute[1] / tokens_count) * 100
                     # фильтрование уникальности (не менее 90%)
-                    if proc >= 90:
+                    if proc >= 0:
                         if types == attribute_type:
                             rarity_attributes.append({'value': value, 'trait_type': attribute_type, 'rarity': proc})
                             break
