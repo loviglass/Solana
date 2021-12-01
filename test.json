@@ -1,18 +1,26 @@
 [
     {
-        "candy machine": "EaE3cZCoDzyd5aWtkBmWpENaz8Qi5pMn8USotiKn62cP",
-        "config": "7HciiBXuP6wPRxb75oeH2HvC7hKkE8we87F2w8kPFBiF",
+        "candy machine": "AX3vap46p2VRkt93WsGU9gVM118iT6TEYy7aP1ibBf4w",
+        "config": "2PwBAWiyU6GWrGFRHfMB86rbnvCC3aC2XargfK6JUyoh",
         "items_redeemed": "0",
-        "price": "199000000",
-        "items_available": "250",
-        "go_live_date": "Some(\"Sat, 13 Nov 2021 13:00:00 +0000\")\n"
+        "price": "1000000000",
+        "items_available": "111",
+        "go_live_date": "Some(\"Sat, 27 Nov 2021 17:00:00 +0000\")\n"
     },
     {
-          "candy machine": "87f4VbdUPXh7phczFegnD8zrirwT1MipbnbfqtZuQ3BL",
-          "config": "25CehD7qCeLUwenSFPHbCVT71EAKbZcDgAPRXnqdCNew",
-          "items_redeemed": "1",
-          "price": "550000000",
-          "items_available": "101",
-          "go_live_date": "Some(\"Wed, 10 Nov 2021 22:00:00 +0000\")\n"
-      }
+        "candy machine": "GXqR2kDwBjfm6MfHZrVr39Qm91yZ3K6mXaZET9hFBQrx",
+        "config": "36rxdFFKahQrChGMqAYJ5hkJt2V3frexS91FHy9sYVpn",
+        "items_redeemed": "250",
+        "price": "10000",
+        "items_available": "250",
+        "go_live_date": "Some(\"Sun, 24 Sep 2023 19:00:00 +0000\")\n"
+    },
+    {
+        "candy machine": "9yrR9BAyq6TV3kiyCcdbKFHaSP94jUxKRt6qVVxxSmzS",
+        "config": "68r419ncWdkDPiEMWvTV3ZgzbQVczKQURjDLP8TY8HqP",
+        "items_redeemed": "22",
+        "price": "200000000",
+        "items_available": "150",
+        "go_live_date": "Some(\"Mon, 28 Oct 2024 01:15:00 +0000\")\n"
+    }
 ]
