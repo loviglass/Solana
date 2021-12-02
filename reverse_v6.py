@@ -136,7 +136,7 @@ class TokenRating:
                             if attributes['value'] == key:
                                 rarity = proc_dic[trait_type][key]
                                 lis.append(rarity)
-            rarity_tokens[f'{token["name"]}(index={token_index})'] = "%.2f" % (sum(lis)/attribute_count)  # '%.2f' %
+            rarity_tokens[(token["name"], token_index)] = "%.2f" % (sum(lis)/attribute_count)  # '%.2f' %
         sort_keys = sorted(rarity_tokens, key=rarity_tokens.__getitem__, reverse=True)
         sort_rarity_tokens = {}
         for token_name in sort_keys:
