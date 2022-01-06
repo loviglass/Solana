@@ -14,7 +14,7 @@ def example():
     except AssertionError:
         raise Exception("Fill in your key ID pair!")
 
-    the_goat_society_candy_machine_id = "HAKuJqXppGRdatCt1J7vqfkaZGxV6BRjQezLY9xwrsXs"  # "DBLJ2VKwKjSnAqPD6MbJQzWSmoEaCLzZ2kwNcDDQwgWv"
+    the_goat_society_candy_machine_id = "8R8zJkVEVYL4zZmeHHZ2NfmKx6rMVtbCb6nd66y2vHW7"  # "DBLJ2VKwKjSnAqPD6MbJQzWSmoEaCLzZ2kwNcDDQwgWv"
     network = SolanaNetwork.MAINNET_BETA
 
     # First, get the candy machine config public key

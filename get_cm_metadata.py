@@ -6,7 +6,7 @@ from solana.rpc.api import Client
 class GetMeta:
     def __init__(self):
         sol_client = Client("https://api.mainnet-beta.solana.com")
-        account = 'DBLJ2VKwKjSnAqPD6MbJQzWSmoEaCLzZ2kwNcDDQwgWv'
+        account = 'CLErvyrMpi66RAxNV2wveSi25NxHb8G383MSVuGDgZzp'
         response = sol_client.get_account_info(account, encoding="jsonParsed")
         self.candy_machine = {
             "descriptor": 8,
@@ -24,7 +24,10 @@ class GetMeta:
         self.decode_metadata(response)
 
     def decode_metadata(self, response):
-        decode_data = base64.b64decode(response['result']['value']['data'][0])
+        try:
+            decode_data = base64.b64decode(response['result']['value']['data'][0])
+        except:
+            print(f'KeyError response = {response}')
         decode_data = decode_data.hex().rstrip('0')
         offset = 0
         for param in self.candy_machine:

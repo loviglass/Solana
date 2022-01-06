@@ -6,7 +6,7 @@ from solana.rpc.api import Client
 class GetMeta:
     def __init__(self):
         sol_client = Client("https://api.mainnet-beta.solana.com")
-        account = '9FNBmGGb2cVHzM93F79xWGiB3jPGtTprF6aKmHrj1G5v'  # 9FNBmGGb2cVHzM93F79xWGiB3jPGtTprF6aKmHrj1G5v
+        account = 'CaNoiCbcu71G6pEjTTnZQ662MHJz7uu4rwMxBaHt7NWa'  # 9FNBmGGb2cVHzM93F79xWGiB3jPGtTprF6aKmHrj1G5v
         response = sol_client.get_account_info(account, encoding="jsonParsed")
         self.candy_machine = {
             "descriptor": 8,
@@ -63,9 +63,11 @@ class GetMeta:
         print(name_2)
         uri_2 = data[354+141+17:354+141+17+63]
         print(uri_2)
-        last = data[-1000:]
+        last = data[-3000:]
         print(last)
 
+        f = open('config_data.txt', 'w')
+        f.write(str(data))
 
 
 if __name__ == '__main__':
